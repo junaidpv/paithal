@@ -17,22 +17,28 @@ define('BASEPATH', dirname(__FILE__));
 require 'config/config.php';
 
 // Seperate library file in seperate directory
-if(isset ($paithal['LIBPATH']))
-    define ('LIBPATH', $paithal['LIBPATH']);
+if(isset ($config['LIBPATH']))
+    define ('LIBPATH', $config['LIBPATH']);
 else
-    define ('LIBPATH', '../library');
+    define ('LIBPATH', dirname(__FILE__).'/../library');
 
 // defining application path so relative referencing would become easy
-if (isset($paithal['APPPATH']))
-    define('APPPATH', $paithal['APPPATH']);
+if (isset($config['APPPATH']))
+    define('APPPATH', $config['APPPATH']);
 else    // if no application path set, we set default location
     define('APPPATH', dirname(__FILE__) . '/application');
+
+if(isset ($config['syslib']))
+    define ('SYSLIB', $config['syslib']);
+else
+    define ('SYSLIB', dirname (__FILE__).'/library');
 
 // Specify location of Zend library, So we can utilize its library
 // It is mandatory, because this CMS is built on top of the Zend framework
 set_include_path(get_include_path() . PATH_SEPARATOR . '../library');
 
-require_once 'Zend/Controller/Front.php';
+require 'Zend/Controller/Front.php';
+require SYSLIB.'/system/paithal/Paithal.php';
 
 // Get one and only Front Controller instance
 $frontController = Zend_Controller_Front::getInstance();

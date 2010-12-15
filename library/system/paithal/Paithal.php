@@ -10,12 +10,16 @@ if (!defined('BASEPATH'))
  */
 /**
  * System main class that controll all flows of execution
+ * This class implement singleten pattern
  * @author Junaid P V
  * @since 0.1.0
  */
 class Paithal {
-
-    private $instance;
+    /**
+     * The only instance of this class as class variable
+     * @var Paithal
+     */
+    private static  $_instance;
 
     /**
      * This class can have only one instance.
@@ -25,7 +29,14 @@ class Paithal {
         
     }
 
+    /**
+     * Return the one and only instance of the class
+     * @return Paithal
+     */
     public function getInstance() {
-        
+        if(!(self::$_instance instanceof  self)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
     }
 }
