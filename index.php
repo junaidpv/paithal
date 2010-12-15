@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL);
+
 /**
  * Paithal CMS first running file.
  *
@@ -8,21 +8,40 @@ error_reporting(E_ALL);
  * @license GPLv3
  * Date: 2010-12-14
  */
+// setting error reporting to show all errors, for development only
+error_reporting(E_ALL);
 
-require_once 'Zend/Controller/Front.php';
+// defining BASEPATH so we always get base path of the application
+define('BASEPATH', dirname(__FILE__));
+
+require 'config/config.php';
+
+// Seperate library file in seperate directory
+if(isset ($paithal['LIBPATH']))
+    define ('LIBPATH', $paithal['LIBPATH']);
+else
+    define ('LIBPATH', '../library');
+
+// defining application path so relative referencing would become easy
+if (isset($paithal['APPPATH']))
+    define('APPPATH', $paithal['APPPATH']);
+else    // if no application path set, we set default location
+    define('APPPATH', dirname(__FILE__) . '/application');
 
 // Specify location of Zend library, So we can utilize its library
 // It is mandatory, because this CMS is built on top of the Zend framework
-set_include_path(get_include_path().PATH_SEPARATOR.'../library');
+set_include_path(get_include_path() . PATH_SEPARATOR . '../library');
+
+require_once 'Zend/Controller/Front.php';
 
 // Get one and only Front Controller instance
 $frontController = Zend_Controller_Front::getInstance();
 
-// set cotrollers directory
-$frontController->setControllerDirectory(dirname(__FILE__).'/application/controllers');
+// set module directory
+$frontController->addModuleDirectory(APPPATH . '/modules');
 
 // we never use automatic rendering of view scripts
 // we have to build out page parts manually
 $frontController->setParam('noViewRenderer', true);
 
-$frontController->run('application/controllers');
+$frontController->run();
