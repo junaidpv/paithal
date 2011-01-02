@@ -39,6 +39,9 @@ set_include_path(get_include_path() . PATH_SEPARATOR . '../library');
 
 require 'Zend/Controller/Front.php';
 require SYSLIB.'/system/paithal/Paithal.php';
+require 'Zend/Session.php';
+
+Zend_Session::start();
 
 // Get one and only Front Controller instance
 $frontController = Zend_Controller_Front::getInstance();

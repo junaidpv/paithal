@@ -15,7 +15,7 @@ require_once 'PaithalController.php';
  * @author Junaid P V
  * @since 0.1.0
  */
-class IndexController extends Zend_Controller_Action {
+class IndexController extends PaithalController {
 
     public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array()) {
         parent::__construct($request, $response, $invokeArgs);
