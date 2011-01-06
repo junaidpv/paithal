@@ -27,51 +27,61 @@ class Paithal {
      * @var array
      */
     public $settings;
-
     public $siteDir;
     public $themeDir;
-
     public $userId;
+    public $baseUrl;
+    public $config;
 
-
-        /**
+    /**
      * This class can have only one instance.
      * Direct instance creation not allowed
      */
     private function __construct() {
-        // loads sites configuration
-        require BASEPATH . '/sites/sites.php';
+        $siteConfigFileName = BASEPATH . '/sites/sites.php';
+        if (file_exists($siteConfigFileName)) {
+            // loads sites configuration
+            require BASEPATH . '/sites/sites.php';
+        }
     }
 
     /**
      * Return the one and only instance of the class
      * @return Paithal
      */
-    public function getInstance() {
+    public static function getInstance() {
         if (!(self::$_instance instanceof self)) {
             self::$_instance = new self();
         }
         return self::$_instance;
     }
 
+    public static function setBaseUrl($baseurl) {
+        self::$_instance->baseUrl = $baseUrl;
+    }
+
     public function loadConfiguration() {
         // default site to work
-        $this->siteDir = 'default';
-        // current domain
-        $currentDomain = $_SERVER['HTTP_HOST'];
-        // sites configuration
-        $sites = $GLOBALS['sites'];
-        // if multiple sites are specified and
-        // current domain is mapped in it
-        if (isset($sites) && in_array($currentDomain, array_keys($sites))) {
-            $this->siteDir = $sites[$currentDomain];
+        $siteDirName = 'default';
+        if (isset($GLOBALS['sites'])) {
+            // current domain
+            $currentDomain = $_SERVER['HTTP_HOST'];
+            // sites configuration
+            $sites = $GLOBALS['sites'];
+            // if multiple sites are specified and
+            // current domain is mapped in it
+            if (in_array($currentDomain, array_keys($sites))) {
+                $siteDirName = $sites[$currentDomain];
+            }
         }
+        $this->siteDir = BASEPATH . "/sites/{$this->siteDir}";
         // full name of configuration file to be loaded
-        $configFileName = BASEPATH."/sites/{$this->siteDir}/config.php";
+        $configFileName = $this->siteDir. "/config/config.php";
         // Load configuration file if it exists
-        if(file_exists($configFileName)) {
+        if (file_exists($configFileName)) {
             // load sites configurations
-            require BASEPATH."/sites/{$this->siteDir}/config.php";
+            require $configFileName ;
+            $this->config = $config;
         }
         // If configuration file does not exist.
         else {
@@ -79,36 +89,33 @@ class Paithal {
             $exception = new Exception('Site configuration file does not exist.');
             throw $exception;
         }
-        
     }
 
     /**
      * Initialize database
      */
     public function initDb() {
-        // Globally defined site configuration data
-        $config = $GLOBALS['config'];
         // if configuration data does not exist,
         // throw an error
-        if(!isset ($config)) {
+        if (!isset($this->config)) {
             $exception = new Exception('Configuration not set for the site.');
             throw $exception;
         }
-        if(!isset ($config['database'])) {
+        if (!isset($this->config ['database'])) {
             $exception = new Exception('Database configuration not set for the site.');
             throw $exception;
         }
         // Prepare database adapter
         require_once 'Zend/Db.php';
-        $db = Zend_Db::factory($config['databse']);
-        require_once BASEPATH.'/application/models/PaithalDbTable.php';
+        $db = Zend_Db::factory($this->config ['database']['adapter'], $this->config ['database']['params']);
+        require_once BASEPATH . '/application/models/PaithalDbTable.php';
         // set default database adapter
         PaithalDbTable::setDefaultAdapter($db);
-        PaithalDbTable::setTablePrefix($config['database']['prefix']);
+        PaithalDbTable::setTablePrefix($this->config['database']['prefix']);
     }
 
     public function loadSiteSettings() {
-        require_once BASEPATH.'/application/models/SiteSettingsTable.php';
+        require_once BASEPATH . '/application/models/SiteSettingsTable.php';
         $siteSettingsTable = new SiteSettings();
         $this->settings = $siteSettingsTable->get();
     }
@@ -119,15 +126,15 @@ class Paithal {
      */
     public function initTheme() {
         $themeName = $this->settings['theme'];
-        $this->themeDir = $this->siteDir.'/'.$this->themeDir;
+        $this->themeDir = $this->siteDir . '/' . $this->themeDir;
     }
 
     public function prepareSession() {
-        require_once BASEPATH.'/application/models/SessionTable.php';
+        require_once BASEPATH . '/application/models/SessionTable.php';
         $sessionTable = new SessionsTable();
         $session = $sessionTable->get();
-        if(isset ($session) && $session->isValid()) {
-            require_once BASEPATH.'/application/UsersTable.php';
+        if (isset($session) && $session->isValid()) {
+            require_once BASEPATH . '/application/UsersTable.php';
             $usersTable = new UsersTable();
             $user = $usersTable->get($session->session_user_id);
             $this->user = $user;

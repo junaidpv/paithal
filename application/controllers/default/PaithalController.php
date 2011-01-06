@@ -27,6 +27,10 @@ class PaithalController extends Zend_Controller_Action {
      */
     public function  init() {
         parent::init();
-        
+        require_once 'Zend/View.php';
+        $view = new Zend_View();
+        $view->baseUrl = Zend_Controller_Front::getInstance()->getBaseUrl();
+
+        $this->view = $view;
     }
 }

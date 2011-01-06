@@ -1,8 +1,8 @@
 <?php
+
 /**
  * Configuration settings of the site
  */
-
 $config['database'] = array(
     'adapter' => 'Mysqli',
     'params' => array(
