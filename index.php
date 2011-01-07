@@ -11,8 +11,6 @@ ini_set("display_errors", 1);
  * @license GPLv3
  * Date: 2010-12-14
  */
-// setting error reporting to show all errors, for development only
-error_reporting(E_ALL);
 
 // defining BASEPATH so we always get base path of the application
 define('BASEPATH', dirname(__FILE__));

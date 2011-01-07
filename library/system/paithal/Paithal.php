@@ -32,6 +32,7 @@ class Paithal {
     public $userId;
     public $baseUrl;
     public $config;
+    public $viewName;
 
     /**
      * This class can have only one instance.
@@ -74,7 +75,7 @@ class Paithal {
                 $siteDirName = $sites[$currentDomain];
             }
         }
-        $this->siteDir = BASEPATH . "/sites/{$this->siteDir}";
+        $this->siteDir = BASEPATH . "/sites/{$siteDirName}";
         // full name of configuration file to be loaded
         $configFileName = $this->siteDir. "/config/config.php";
         // Load configuration file if it exists
@@ -126,7 +127,14 @@ class Paithal {
      */
     public function initTheme() {
         $themeName = $this->settings['theme'];
-        $this->themeDir = $this->siteDir . '/' . $this->themeDir;
+        $this->themeDir = $this->siteDir . '/themes/' . $themeName;
+        require_once APPPATH.'models/ThemesTable.php';
+        $themesTable = new ThemesTable();
+        $theme = $themesTable->loadTheme($themeName);
+        $this->viewName = '';
+        if(isset ($theme) && isset ($theme['view_name'])) {
+            $this->viewName = $theme['view_name'];
+        }
     }
 
     public function prepareSession() {
