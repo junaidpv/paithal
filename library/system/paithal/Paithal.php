@@ -29,7 +29,11 @@ class Paithal {
     public $settings;
     public $siteDir;
     public $themeDir;
-    public $userId;
+    /**
+     *
+     * @var UserRow
+     */
+    public $user;
     public $baseUrl;
     public $config;
     public $viewName;
@@ -116,7 +120,7 @@ class Paithal {
     }
 
     public function loadSiteSettings() {
-        require_once BASEPATH . '/application/models/SiteSettingsTable.php';
+        require_once APPPATH . '/models/SiteSettingsTable.php';
         $siteSettingsTable = new SiteSettings();
         $this->settings = $siteSettingsTable->get();
     }
@@ -126,9 +130,9 @@ class Paithal {
      * 
      */
     public function initTheme() {
-        $themeName = $this->settings['theme'];
+        $themeName = $this->settings["theme"];
         $this->themeDir = $this->siteDir . '/themes/' . $themeName;
-        require_once APPPATH.'models/ThemesTable.php';
+        require_once APPPATH.'/models/ThemesTable.php';
         $themesTable = new ThemesTable();
         $theme = $themesTable->loadTheme($themeName);
         $this->viewName = '';
@@ -138,14 +142,13 @@ class Paithal {
     }
 
     public function prepareSession() {
-        require_once BASEPATH . '/application/models/SessionTable.php';
+        require_once APPPATH.'/models/SessionTable.php';
         $sessionTable = new SessionsTable();
         $session = $sessionTable->get();
         if (isset($session) && $session->isValid()) {
-            require_once BASEPATH . '/application/UsersTable.php';
+            require_once APPPATH . '/models/UsersTable.php';
             $usersTable = new UsersTable();
-            $user = $usersTable->get($session->session_user_id);
-            $this->user = $user;
+            $this->user = $usersTable->get($session->session_user_id);
         }
     }
 

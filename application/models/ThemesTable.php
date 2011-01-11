@@ -25,9 +25,12 @@ class ThemesTable extends PaithalDbTable {
         $select = $this->getDefaultAdapter()->select();
         $select = $select->from($this->getName())
                 ->from($viewsTable->getName(), array('view_id', 'view_name', 'view_desc'))
-                ->where('view_id = them_default_view_id')
+                ->where('view_id = theme_default_view_id')
                 ->where('theme_name = ?', $themeName);
         $rows = $this->getDefaultAdapter()->fetchAll($select);
-        return $rows->getRow(0);
+        if(isset ($rows[0])) {
+            return $rows[0];
+        }
+        return null;
     }
 }

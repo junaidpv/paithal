@@ -22,7 +22,7 @@ class IndexController extends PaithalController {
     }
 
     public function indexAction() {
-        echo "Hello";
+        $this->renderView();
     }
 
 }

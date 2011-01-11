@@ -42,22 +42,24 @@ require_once 'system/paithal/Paithal.php';
 $paithal = Paithal::getInstance();
 $paithal->loadConfiguration();
 $paithal->initDb();
+$paithal->loadSiteSettings();
 $paithal->initTheme();
 
 require 'Zend/Controller/Front.php';
 require 'Zend/Session.php';
+require_once 'Zend/Registry.php';
 
 Zend_Session::start();
 
 // Get one and only Front Controller instance
 $frontController = Zend_Controller_Front::getInstance();
 
-// set module directory
-$frontController->addControllerDirectory('application/controllers/default', 'default');
+// set module controller directories
+$frontController->addControllerDirectory(APPPATH.'/controllers/default', 'default');
+$frontController->addControllerDirectory(APPPATH.'/controllers/admin', 'admin');
 $frontController->addControllerDirectory('application/controllers/view', 'view');
 
 // we never use automatic rendering of view scripts
 // we have to build out page parts manually
 $frontController->setParam('noViewRenderer', true);
-
 $frontController->dispatch();

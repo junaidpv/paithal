@@ -32,9 +32,7 @@ class SiteSettings extends PaithalDbTable {
         $rows = $this->fetchAll();
         $settings = array();
         foreach($rows as $row) {
-            $item['ss_name']=$row['ss_name'];
-            $item['ss_value'] = $row['ss_value'];
-            $settings[] = $item;
+            $settings[$row->ss_name]=$row->ss_value;
         }
         return $settings;
     }
