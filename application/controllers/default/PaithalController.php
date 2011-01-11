@@ -67,8 +67,8 @@ abstract class PaithalController extends Zend_Controller_Action {
             } else {
                 echo $this->view->render($paithal->viewName . '_view.php');
             }
-        } else if ($moduleName == 'admin') {
-            $this->view->addScriptPath(APPPATH . '/views/scripts/admin');
+        } else if ($moduleName == 'admin' || $moduleName == 'manage') {
+            $this->view->addScriptPath(APPPATH . "/views/scripts/$moduleName");
             if (isset($script)) {
                 echo $this->view->render($script);
             } else {

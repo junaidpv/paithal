@@ -57,7 +57,8 @@ $frontController = Zend_Controller_Front::getInstance();
 // set module controller directories
 $frontController->addControllerDirectory(APPPATH.'/controllers/default', 'default');
 $frontController->addControllerDirectory(APPPATH.'/controllers/admin', 'admin');
-$frontController->addControllerDirectory('application/controllers/view', 'view');
+$frontController->addControllerDirectory(APPPATH.'/controllers/manage', 'manage');
+$frontController->addControllerDirectory(APPPATH.'/controllers/view', 'view');
 
 // we never use automatic rendering of view scripts
 // we have to build out page parts manually

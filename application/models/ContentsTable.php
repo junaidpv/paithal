@@ -59,14 +59,14 @@ class ContentsTable extends PaithalDbTable {
 
     public function getByIds($ids) {
         $select = $this->getBasicSelect();
-        foreach($ids as $id) {
+        foreach ($ids as $id) {
             $select = $select->where('content_id = ?', $id);
         }
         return $this->getDefaultAdapter()->fetchAll($select);
     }
 
     public function getByFullName($fullName) {
-        
+
         $select = $this->getBasicSelect()
                         ->where('content_name = ?', $fullName);
         $rows = $db->fetchAll($select);
@@ -116,6 +116,11 @@ class ContentsTable extends PaithalDbTable {
         return $db->fetchAll($select);
     }
 
+    /**
+     * Add new content to the databse
+     * @param array $data
+     * @return bool
+     */
     public function addContent($data=array()) {
         $error = false;
         $translate = Zend_Registry::get('translate');
@@ -130,42 +135,69 @@ class ContentsTable extends PaithalDbTable {
         $contentViewId = $data['content_view_id'];
         $contentPublishTS = $data['content_publish_ts'];
 
-        if($this->exist($contentName)) {
+        if ($this->exist($contentName)) {
             $error = true;
             $this->errors['content_name'] = sprintf($translate->_("A content already exist with name: %s."), $contentName);
         }
-        if(!isset ($contentTitle) || strlen($contentTitle)) {
+        if (!isset($contentTitle) || strlen($contentTitle)) {
             $error = true;
             $this->errors['content_title'] = $translate->_("Content title is required.");
         }
         require_once 'ContentTypesTable.php';
         $contentTypesTable = new ContentTypes();
-        if(!isset ($contentCTypeId) || !$contentTypesTable->exist($contentCTypeId)) {
+        if (!isset($contentCTypeId) || !$contentTypesTable->exist($contentCTypeId)) {
             $error = true;
             $this->errors['content_ctype_id'] = $translate->_("Content type not specified or does not exist.");
         }
-        if(!isset ($contentPublishTS)) {
+        if (!isset($contentPublishTS)) {
             $error = true;
             $this->errors['content_publish_ts'] = $translate->_("Publish date and time not specified");
+        } else {
+            require_once 'Zend//Date.php';
+            $date = new Zend_Date($contentPublishTS);
+            $contentPublishTS = $date->getTimestamp();
         }
+        if (!$error) {
+            $content = $this->createRow();
+            $content->content_name = $contentName;
+            $content->content_creation_ts = $contentCreationTS;
+            $content->content_title = $contentTitle;
+            $content->content_user_id = $contentUserId;
+            $content->content_owner_id = $contentOwnerId;
+            $content->save();
 
-        $content = $this->createRow();
+            $revContentId = $content->content_rev_id;
+            $revModificationTS = $timeStamp;
+            $revText = $data['rev_text'];
+            $revComment = $data['rev_comment'];
+            $revUserId = $userId;
+            $revUserText = Paithal::getInstance()->user->user_name;
+            $revParentId = null;
 
-        $revModificationTS = $timeStamp;
-        $revText = $data['rev_text'];
-        $revComment = $data['rev_text'];
-        $revUserId = $userId;
-        $revUserText = $data['rev_user_text'];
-        $revParentId = $data['rev_parent_id'];
-        $revFormatId = $data['rev_format_id'];
+            require_once 'RevisionsTable.php';
+            $revisionsTable = new RevisionsTable();
+            $revision = $revisionsTable->createRow();
+            $revision->rev_content_id;
+            $revision->rev_modification_ts = $revModificationTS;
+            $revision->rev_text = $revText;
+            $revision->rev_comment = $revComment;
+            $revision->rev_user_id = $revUserId;
+            $revision->rev_user_text = $revUserText;
+            $revision->rev_parent_id = $revParentId;
+            $revision->save();
 
+            $content->content_rev_id = $revision->rev_id;
+            $content->save();
+            return true;
+        }
+        return false;
     }
 
     public function exist($contentName) {
         $select = $this->select()
-                ->where('content_name = ?', $contentName);
+                        ->where('content_name = ?', $contentName);
         $rows = $this->fetchAll($select);
-        if(count($rows)==0) {
+        if (count($rows) == 0) {
             return true;
         }
         return false;
