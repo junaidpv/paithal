@@ -51,7 +51,8 @@ abstract class PaithalController extends Zend_Controller_Action {
         //$this->view->setBasePath(APPPATH.'/views');
         // add Paithal's default view helper path
         $view->addHelperPath(APPPATH . '/views/helpers', 'Paithal_View_Helper');
-
+        // can be used to return previous location from login form etc
+        $view->currentUri = $this->_request->getRequestUri();
         // set as controller view object
         // so all child controllers can use the view object
         $this->view = $view;
@@ -60,9 +61,10 @@ abstract class PaithalController extends Zend_Controller_Action {
     public function renderView($script=null) {
         $moduleName = $this->_request->getModuleName();
         if ($moduleName == 'default') {
+            $this->view->addScriptPath(APPPATH.'/views/scripts/common');
             $paithal = Paithal::getInstance();
             $this->view->addScriptPath($paithal->themeDir);
-            $scriptFilename = 'index.php';
+            $scriptFileName = 'index_view.php';
             if (isset($script)) {
                 if(file_exists($paithal->themeDir."/$script")) {
                     $scriptFileName = $script;

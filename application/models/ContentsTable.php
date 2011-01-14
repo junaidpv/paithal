@@ -122,9 +122,10 @@ class ContentsTable extends PaithalDbTable {
      * @return bool
      */
     public function addContent($params=array()) {
+        $paithal = Paithal::getInstance();
         $error = false;
         $translate = Zend_Registry::get('translate');
-        $currentUser = Paithal::getInstance()->user;
+        $currentUser = $paithal->user;
         $userId = $currentUser->user_id;
         $timeStamp = time();
         $contentName = $params['content_name'];
@@ -138,21 +139,21 @@ class ContentsTable extends PaithalDbTable {
 
         if ($this->exist($contentName)) {
             $error = true;
-            $this->errors['content_name'] = sprintf($translate->_("A content already exist with name: %s."), $contentName);
+            $paithal->formMessages['content_name'] = sprintf($translate->_("A content already exist with name: %s."), $contentName);
         }
         if (!isset($contentTitle) || strlen($contentTitle)) {
             $error = true;
-            $this->errors['content_title'] = $translate->_("Content title is required.");
+            $paithal->formMessages['content_title'] = $translate->_("Content title is required.");
         }
         require_once 'ContentTypesTable.php';
         $contentTypesTable = new ContentTypes();
         if (!isset($contentCTypeId) || !$contentTypesTable->exist($contentCTypeId)) {
             $error = true;
-            $this->errors['content_ctype_id'] = $translate->_("Content type not specified or does not exist.");
+            $paithal->formMessages['content_ctype_id'] = $translate->_("Content type not specified or does not exist.");
         }
         if (!isset($contentPublishTS)) {
             $error = true;
-            $this->errors['content_publish_ts'] = $translate->_("Publish date and time not specified");
+            $paithal->formMessages['content_publish_ts'] = $translate->_("Publish date and time not specified");
         } else {
             require_once 'Zend/Date.php';
             $date = new Zend_Date($contentPublishTS);

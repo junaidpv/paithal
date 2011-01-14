@@ -24,7 +24,32 @@ class UserController extends PaithalController {
     public function indexAction() {
         $this->renderView();
     }
-    public function loingAction() {
+    public function loginAction() {
+        $request = $this->_request;
+        if($request->isPost()) {
+            $userName = $request->getPost('user_name');
+            $userPassword = $request->getPost('user_password');
+            $returnTo = $request->getPost('return_to');
+            require_once APPPATH.'/models/UsersTable.php';
+            $usersTable = new UsersTable();
+            // try to match user name aginst given password
+            $user = $usersTable->match($userName, $userPassword);
+            if($user) {
+                require_once APPPATH.'/models/SessionsTable.php';
+                $sessionsTable = new SessionsTable();
+                $session = $sessionsTable->start($user);
+                $paithal = Paithal::getInstance();
+                $paithal->user = $user;
+                $translate = Zend_Registry::get('translate');
+                // add a site message inidcating that login was successfull
+                $paithal->siteMessages[] = $translate->_('User login was successfull.');
+                // if location is given to return move to there
+                if(isset ($returnTo) && strlen($returnTo)>1) {
+                    $request = new Zend_Controller_Request_Http($returnTo);
+                    Zend_Controller_Front::getInstance()->dispatch($request);
+                }
+            }
+        }
         $this->renderView('login_view.php');
     }
 

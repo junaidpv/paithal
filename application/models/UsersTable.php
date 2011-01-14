@@ -23,4 +23,25 @@ class UsersTable extends PaithalDbTable {
         $rows = $this->find($user_id);
         return $rows->getRow(0);
     }
+
+    /**
+     * Match user name aginst password.
+     * If match success returns user row otherwise null
+     *
+     * @param string $userName
+     * @param string $userPassword
+     * @return UserRow
+     */
+    public function match($userName, $userPassword) {
+        $translate = Zend_Registry::get('translate');
+        $paithal = Paithal::getInstance();
+        $select = $this->select()
+                ->where('user_name = ?', $userName)
+                ->where('user_password = ?', sha1($userPassword));
+        $rows = $this->fetchAll($select);
+        if(count($rows)==1) {
+            return $rows->getRow(0);
+        }
+        return null;
+    }
 }

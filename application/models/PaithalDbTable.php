@@ -16,7 +16,6 @@ require_once 'Zend/Db/Table/Abstract.php';
  * @since 0.1.0
  */
 abstract  class PaithalDbTable extends Zend_Db_Table_Abstract {
-    protected $errors = array();
     private static $_prefix='';
 
     public static function setTablePrefix($prefix) {

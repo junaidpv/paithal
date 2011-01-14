@@ -38,6 +38,9 @@ class Paithal {
     public $config;
     public $viewName;
 
+    public $formMessages = array();
+    public $siteMessages = array();
+
     /**
      * This class can have only one instance.
      * Direct instance creation not allowed

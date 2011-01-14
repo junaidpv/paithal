@@ -24,5 +24,8 @@ class IndexController extends PaithalController {
     public function indexAction() {
         $this->renderView();
     }
+    public function testAction() {
+        echo $this->_request->getRequestUri();
+    }
 
 }

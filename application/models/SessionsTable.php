@@ -35,11 +35,12 @@ class SessionsTable extends PaithalDbTable {
      *      'user_id' => user id,
      *      'ip' => session ip,
      * );
-     * @param array $data
+     * @param UserRow $user
      */
-    public function start($data) {
+    public function start($user) {
         $timeStamp = time();
-        $rows = $this->find($data['id']);
+        $sessionId = Zend_Session::getId();
+        $rows = $this->find($sessionId);
         if (count($rows) > 0) {// a row with same session id exists
             $session = $rows->getRow(0);
             if ($session->session_status == self::SESSION_VALID) {
@@ -48,17 +49,17 @@ class SessionsTable extends PaithalDbTable {
             } elseif ($session->session_status == self::SESSION_INVALID) {
                 // row exists but session is not valid
                 // so we reuse it
-                $session->session_user_id = $data['user_id'];
-                $session->session_ip = $data['ip'];
+                $session->session_user_id = $user->user_id;
+                $session->session_ip = $_SERVER['REMOTE_ADDR'];
                 $session->session_start_ts = $timeStamp;
                 $session->session_last_ts = $timeStamp;
             }
         } else { // row does not exist with given session id, so create it
             // create new session row
             $session = $this->createRow();
-            $session->session_id = $data['id'];
-            $session->session_user_id = $data['user_id'];
-            $session->session_ip = $data['ip'];
+            $session->session_id = $sessionId;
+            $session->session_user_id = $user->user_id;
+            $session->session_ip = $_SERVER['REMOTE_ADDR'];
             $session->session_start_ts = $timeStamp;
             $session->session_last_ts = $timeStamp;
         }

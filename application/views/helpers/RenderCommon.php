@@ -19,10 +19,10 @@ require_once 'Zend/View/Helper/Abstract.php';
 class Paithal_View_Helper_RenderCommon extends Zend_View_Helper_Abstract {
 
     public function renderCommon($script) {
-        if(!isset ($script) || strlen($script)) {
+        if(!isset ($script) || strlen($script)<1) {
             throw new Exception('Common rendering: script not specified');
         }
-        return $this->view->render(APPPATH."/views/scripts/common/$script");
+        return $this->view->render("$script.php");
     }
 
 }
