@@ -1,0 +1,1 @@
+<h1><?php echo $this->siteInfo('site_name'); ?></h1>

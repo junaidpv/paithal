@@ -118,22 +118,23 @@ class ContentsTable extends PaithalDbTable {
 
     /**
      * Add new content to the databse
-     * @param array $data
+     * @param array $params
      * @return bool
      */
-    public function addContent($data=array()) {
+    public function addContent($params=array()) {
         $error = false;
         $translate = Zend_Registry::get('translate');
-        $userId = Paithal::getInstance()->user->user_id;
+        $currentUser = Paithal::getInstance()->user;
+        $userId = $currentUser->user_id;
         $timeStamp = time();
-        $contentName = $data['content_name'];
+        $contentName = $params['content_name'];
         $contentCreationTS = $timeStamp;
-        $contentTitle = $data['content_title'];
+        $contentTitle = $params['content_title'];
         $contentUserId = $userId;
         $contentOwnerId = $userId;
-        $contentCTypeId = $data['content_ctype_id'];
-        $contentViewId = $data['content_view_id'];
-        $contentPublishTS = $data['content_publish_ts'];
+        $contentCTypeId = $params['content_ctype_id'];
+        $contentViewId = $params['content_view_id'];
+        $contentPublishTS = $params['content_publish_ts'];
 
         if ($this->exist($contentName)) {
             $error = true;
@@ -153,7 +154,7 @@ class ContentsTable extends PaithalDbTable {
             $error = true;
             $this->errors['content_publish_ts'] = $translate->_("Publish date and time not specified");
         } else {
-            require_once 'Zend//Date.php';
+            require_once 'Zend/Date.php';
             $date = new Zend_Date($contentPublishTS);
             $contentPublishTS = $date->getTimestamp();
         }
@@ -168,10 +169,14 @@ class ContentsTable extends PaithalDbTable {
 
             $revContentId = $content->content_rev_id;
             $revModificationTS = $timeStamp;
-            $revText = $data['rev_text'];
-            $revComment = $data['rev_comment'];
+            $revText = $params['rev_text'];
+            $revComment = $params['rev_comment'];
             $revUserId = $userId;
-            $revUserText = Paithal::getInstance()->user->user_name;
+            if (isset($currentUser->user_display_name) && strlen($currentUser->user_display_name) > 0) {
+                $revUserText = $currentUser->user_displaye_name;
+            } else {
+                $revUserText = $currentUser->user_name;
+            }
             $revParentId = null;
 
             require_once 'RevisionsTable.php';
@@ -185,7 +190,7 @@ class ContentsTable extends PaithalDbTable {
             $revision->rev_user_text = $revUserText;
             $revision->rev_parent_id = $revParentId;
             $revision->save();
-
+            
             $content->content_rev_id = $revision->rev_id;
             $content->save();
             return true;
@@ -201,6 +206,24 @@ class ContentsTable extends PaithalDbTable {
             return true;
         }
         return false;
+    }
+
+    public function getList($params=array()) {
+        if (isset($params['maximum']) && strlen($params['maximum'])) {
+            $maximum = intval($params['maximum']);
+        }
+        else
+            $maximum = 20;
+        if (isset($params['offset']) && strlen($params['offset'])) {
+            $offset = intval($params['offset']);
+        }
+        else
+            $offset = 0;
+        $select = $this->select()
+                        ->limit($maximum, $offset)
+                        ->order('content_creation_ts DESC');
+        $rows = $this->fetchAll($select);
+        return $rows;
     }
 
 }

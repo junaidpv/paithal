@@ -21,13 +21,25 @@ class Manage_ContentController extends PaithalController {
         parent::__construct($request, $response, $invokeArgs);
     }
 
+    public function indexAction() {
+        $this->renderView('contents.php');
+    }
+
     public function addAction() {
         $request = $this->_request;
         $submit = $request->getParam('submit', '0');
         if($submit=='1') {
-            $contentName = $request->getParam('content_name');
-            $contentTitle = $request->getParam('content_title');
-            $contentPublishTS = $request->getParam('content_publish_ts');
+            $params = array();
+            $params['content_name'] = $request->getParam('content_name');
+            $params['content_title'] = $request->getParam('content_title');
+            $params['content_ctype_id'] = $request->getParam('content_ctype_id');
+            $params['content_view_id'] = $request->getParam('content_view_id');
+            $params['content_publish_ts'] = $request->getParam('content_publish_ts');
+            $params['rev_text'] = $request->getParam('rev_text');
+            $params['rev_comment'] = $request->getParam('rev_comment');
+            require_once APPPATH.'/models/ContentsTable.php';
+            $contentsTable = new ContentsTable();
+            $contentsTable->addContent($params);
         }
         $this->renderView('add_content.php');
     }
