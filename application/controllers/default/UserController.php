@@ -26,6 +26,7 @@ class UserController extends PaithalController {
     }
     public function loginAction() {
         $request = $this->_request;
+        // only POST request will be considered
         if($request->isPost()) {
             $userName = $request->getPost('user_name');
             $userPassword = $request->getPost('user_password');
