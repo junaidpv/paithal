@@ -52,7 +52,7 @@ abstract class PaithalController extends Zend_Controller_Action {
         // add Paithal's default view helper path
         $view->addHelperPath(APPPATH . '/views/helpers', 'Paithal_View_Helper');
         // can be used to return previous location from login form etc
-        $view->currentUri = $this->_request->getRequestUri();
+        $view->currentUri = $this->_request->getScheme().'://'.$this->_request->getHttpHost().$this->_request->getRequestUri();
         // set as controller view object
         // so all child controllers can use the view object
         $this->view = $view;

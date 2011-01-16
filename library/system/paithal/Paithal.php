@@ -145,13 +145,23 @@ class Paithal {
     }
 
     public function prepareSession() {
-        require_once APPPATH.'/models/SessionTable.php';
+        require_once APPPATH.'/models/SessionsTable.php';
+        $userIdInCookie = null;
+        $sessionIdInCookie = null;
+        if(isset ($_COOKIE['uid']) && strlen($_COOKIE['uid'])) {
+            $userIdInCookie = $_COOKIE['user_id'];
+        }
+        if(isset ($_COOKIE['sid']) && strlen($_COOKIE['sid'])) {
+            $sessionIdInCookie = $_COOKIE['sid'];
+        }
         $sessionTable = new SessionsTable();
-        $session = $sessionTable->get();
+        $session = $sessionTable->get($userIdInCookie, $sessionIdInCookie);
         if (isset($session) && $session->isValid()) {
             require_once APPPATH . '/models/UsersTable.php';
             $usersTable = new UsersTable();
             $this->user = $usersTable->get($session->session_user_id);
+            // update session last timestamp
+            $session->session_last_ts = time();
         }
     }
 

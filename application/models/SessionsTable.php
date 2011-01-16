@@ -41,6 +41,7 @@ class SessionsTable extends PaithalDbTable {
         $timeStamp = time();
         $sessionId = Zend_Session::getId();
         $rows = $this->find($sessionId);
+        $session = null;
         if (count($rows) > 0) {// a row with same session id exists
             $session = $rows->getRow(0);
             if ($session->session_status == self::SESSION_VALID) {
@@ -53,6 +54,8 @@ class SessionsTable extends PaithalDbTable {
                 $session->session_ip = $_SERVER['REMOTE_ADDR'];
                 $session->session_start_ts = $timeStamp;
                 $session->session_last_ts = $timeStamp;
+                $session->session_status = self::SESSION_VALID;
+                $session->save();
             }
         } else { // row does not exist with given session id, so create it
             // create new session row
@@ -62,17 +65,44 @@ class SessionsTable extends PaithalDbTable {
             $session->session_ip = $_SERVER['REMOTE_ADDR'];
             $session->session_start_ts = $timeStamp;
             $session->session_last_ts = $timeStamp;
+            $session->session_status = self::SESSION_VALID;
+            $session->save();
         }
+        return $session;
+    }
+
+    public function end($userIdInCookie, $sessionIdInCookie) {
+        $sessionId = Zend_Session::getId();
+        if ($userIdInCookie == $sessionId) {
+            $select = $this->select()
+                    ->where('session_id = ?', $sessionId)
+                    ->where('session_user_id = ?', $userIdInCookie);
+            $rows = $this->fetchAll($select);
+            if (count($rows) == 1) {
+                $rows->getRow(0)->session_status = self::SESSION_INVALID;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Fetch current session data from database if one.
      * @return SessionRow
      */
-    public function get() {
+    public function get($userIdInCookie, $sessionIdInCookie) {
         $sessionId = Zend_Session::getId();
-        $rows = $this->find($sessionId);
-        return $rows->getRow(0);
+        if ($userIdInCookie == $sessionId) {
+            $select = $this->select()
+                    ->where('session_id = ?', $sessionId)
+                    ->where('session_user_id = ?', $userIdInCookie);
+            $rows = $this->fetchAll($select);
+            if (count($rows) == 1) {
+                return $rows->getRow(0);
+            } else {
+                return null;
+            }
+        }
     }
 
 }

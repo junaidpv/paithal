@@ -38,18 +38,18 @@ else
 // It is mandatory, because this CMS is built on top of the Zend framework
 set_include_path(get_include_path() . PATH_SEPARATOR . LIBPATH. PATH_SEPARATOR . SYSLIB);
 
-require_once 'system/paithal/Paithal.php';
+require 'system/paithal/Paithal.php';
+require 'Zend/Controller/Front.php';
+require 'Zend/Session.php';
+require 'Zend/Registry.php';
+Zend_Session::start();
+
 $paithal = Paithal::getInstance();
 $paithal->loadConfiguration();
 $paithal->initDb();
 $paithal->loadSiteSettings();
+$paithal->prepareSession();
 $paithal->initTheme();
-
-require 'Zend/Controller/Front.php';
-require 'Zend/Session.php';
-require_once 'Zend/Registry.php';
-
-Zend_Session::start();
 
 // Get one and only Front Controller instance
 $frontController = Zend_Controller_Front::getInstance();
